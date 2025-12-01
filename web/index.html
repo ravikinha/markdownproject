@@ -15,6 +15,13 @@
     the `--base-href` argument provided to `flutter build`.
   -->
   <base href="$FLUTTER_BASE_HREF">
+  <script>
+    // Use URL-based routing instead of hash-based routing
+    // This removes the # from URLs
+    if (window.location.hash) {
+      window.history.replaceState(null, null, window.location.hash.substring(1));
+    }
+  </script>
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">

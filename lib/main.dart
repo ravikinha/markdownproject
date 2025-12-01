@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:swift_flutter/swift_flutter.dart';
-import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'package:url_strategy/url_strategy.dart';
 import 'animation_interactive_guide.dart';
 import 'animated_floating_button.dart';
 import 'notification_documentation_page.dart';
 
 void main() {
   // Use URL-based routing instead of hash-based routing
-  usePathUrlStrategy();
+  // This removes the # from URLs (e.g., /dynamicnotification instead of /#/dynamicnotification)
+  setPathUrlStrategy();
   runApp(const LearningApp());
 }
 
