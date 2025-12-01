@@ -31,6 +31,7 @@ fi
 echo "📦 Building Flutter web app..."
 flutter clean
 flutter pub get
+# Build with HTML renderer for better text searchability (Ctrl+F support)
 flutter build web --release
 
 if [ ! -d "build/web" ]; then
