@@ -290,5 +290,5 @@ Now that you understand computed values, let's learn about the Controller patter
 
 ---
 
-**Previous**: [Reactive State ←](03_reactive_state.md) | **Next**: [Controllers →](05_controllers.md)
+**Previous**: [Debug Tool ←](03.5_debug_tool.md) | **Next**: [Controllers →](05_controllers.md)
 

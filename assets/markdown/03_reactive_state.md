@@ -338,5 +338,5 @@ Now that you understand SwiftValue, let's learn about computed values that autom
 
 ---
 
-**Previous**: [Core Concepts ←](02_basic_concepts.md) | **Next**: [Computed Values →](04_computed_values.md)
+**Previous**: [Core Concepts ←](02_basic_concepts.md) | **Next**: [Debug Tool →](03.5_debug_tool.md)
 

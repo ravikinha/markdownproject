@@ -72,6 +72,7 @@ class LearningHomePage extends StatelessWidget {
       Chapter(title: 'Getting Started', file: '01_getting_started.md', icon: Icons.play_arrow),
       Chapter(title: 'Core Concepts', file: '02_basic_concepts.md', icon: Icons.lightbulb_outline),
       Chapter(title: 'Reactive State', file: '03_reactive_state.md', icon: Icons.autorenew),
+      Chapter(title: 'Debug Tool', file: '03.5_debug_tool.md', icon: Icons.bug_report),
       Chapter(title: 'Computed Values', file: '04_computed_values.md', icon: Icons.calculate),
       Chapter(title: 'Controllers', file: '05_controllers.md', icon: Icons.settings),
       Chapter(title: 'Async State', file: '06_async_state.md', icon: Icons.cloud_download),
