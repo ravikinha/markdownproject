@@ -12,7 +12,7 @@ Open your `pubspec.yaml` file and add swift_flutter to your dependencies:
 dependencies:
   flutter:
     sdk: flutter
-  swift_flutter: ^2.1.0
+  swift_flutter: ^2.3.0
 ```
 
 ### Step 2: Install Package

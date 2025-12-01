@@ -301,6 +301,128 @@ Swift(
 
 Regularly update swift_flutter to get the latest features and bug fixes.
 
+## Debug Tool
+
+swift_flutter includes a powerful debug tool for monitoring network requests, WebSocket connections, and logs. This is especially useful during development.
+
+### Enabling the Debug Tool
+
+Enable the debug tool with a single line in your `main()` function:
+
+```dart
+void main() {
+  SwiftFlutter.init(debugtool: true);
+  runApp(MyApp());
+}
+```
+
+**⚠️ Important**: You must add `SwiftDebugFloatingButton` to your `Scaffold` to access the debug inspector page:
+
+```dart
+class MyHomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('My App')),
+      body: Center(child: Text('Hello World')),
+      // Add this button to access debug inspector
+      floatingActionButton: const SwiftDebugFloatingButton(),
+    );
+  }
+}
+```
+
+The floating button will automatically appear when the debug tool is enabled and provides access to the debug inspector page.
+
+### Features
+
+The debug tool provides:
+
+- **Network Interceptor**: Automatically captures all HTTP requests made with `http` and `dio` packages
+- **WebSocket Interceptor**: Tracks WebSocket connections, messages, and events
+- **Log Interceptor**: Captures all print statements and logs
+- **Curl Generator**: Automatically generates curl commands for API testing
+- **Modern UI**: Beautiful, responsive interface that works on all devices
+
+### Using the Debug Tool
+
+```dart
+import 'package:swift_flutter/swift_flutter.dart';
+import 'package:http/http.dart' as http;
+
+void main() {
+  // Initialize with debug tool enabled
+  SwiftFlutter.init(debugtool: true);
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('My App')),
+      body: Center(child: Text('Hello World')),
+      // ⚠️ IMPORTANT: Add SwiftDebugFloatingButton to access debug inspector
+      floatingActionButton: const SwiftDebugFloatingButton(),
+    );
+  }
+}
+
+// Make HTTP requests - automatically intercepted!
+final response = await SwiftHttpHelper.intercept(
+  () => http.get(Uri.parse('https://api.example.com/data')),
+  method: 'GET',
+  url: 'https://api.example.com/data',
+);
+
+// Use swiftPrint() for log interception
+swiftPrint('This will appear in the debug tool');
+```
+
+**Note**: The `SwiftDebugFloatingButton` is required to access the debug inspector page. Without it, you won't be able to view the captured network requests, logs, or WebSocket connections.
+
+### Debug Tool Tabs
+
+- **HTTP Tab**: View all HTTP requests with request/response details, headers, and body
+- **WebSocket Tab**: Monitor WebSocket connections and messages in real-time
+- **Logs Tab**: Browse all captured logs with filtering by type
+- **Curl Tab**: Copy curl commands for easy API testing
+
+### Best Practices for Debug Tool
+
+1. **Enable Only in Development**: The debug tool should be disabled in production builds
+2. **Use Conditional Initialization**: 
+   ```dart
+   SwiftFlutter.init(debugtool: kDebugMode);
+   ```
+3. **Monitor Network Requests**: Use it to debug API calls and network issues
+4. **Track WebSocket Events**: Monitor real-time connections and messages
+5. **Review Logs**: Check captured logs to understand app behavior
+
+### Production Considerations
+
+Always disable the debug tool in production:
+
+```dart
+import 'package:flutter/foundation.dart';
+
+void main() {
+  SwiftFlutter.init(debugtool: kDebugMode); // Only enabled in debug mode
+  runApp(MyApp());
+}
+```
+
+This ensures zero overhead in production builds while providing powerful debugging capabilities during development.
+
 ### 2. Follow Breaking Changes
 
 Check the changelog when updating to new versions.

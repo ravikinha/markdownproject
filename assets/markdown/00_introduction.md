@@ -38,6 +38,9 @@ Comprehensive testing utilities make it easy to test your state management logic
 #### 🔧 **Developer Experience**
 Full DevTools integration with zero overhead, making debugging a breeze.
 
+#### 🐛 **Debug Tool**
+Built-in network interceptor, WebSocket tracker, and log capture for comprehensive debugging.
+
 ### Who Should Use swift_flutter?
 
 swift_flutter is perfect for:
