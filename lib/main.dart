@@ -80,7 +80,7 @@ class LearningHomePage extends StatelessWidget {
       Chapter(title: 'Extensions', file: '08_extensions.md', icon: Icons.extension),
       Chapter(title: 'Advanced Patterns', file: '09_advanced_patterns.md', icon: Icons.architecture),
       Chapter(title: 'Best Practices', file: '10_best_practices.md', icon: Icons.star),
-      Chapter(title: 'Animations', file: null, icon: Icons.animation, isInteractive: true),
+      Chapter(title: 'Animations', file: null, icon: Icons.auto_awesome, isInteractive: true),
     ];
 
     // Load initial chapter
