@@ -504,8 +504,8 @@ class LearningHomePage extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 32),
                 child: SelectionArea(
-                  child: Markdown(
-                    data: markdownContent.value!,
+                child: Markdown(
+                  data: markdownContent.value!,
                   styleSheet: MarkdownStyleSheet(
                     h1: TextStyle(
                       fontSize: 32,
@@ -584,7 +584,7 @@ class LearningHomePage extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                    selectable: true,
+                  selectable: true,
                   ),
                 ),
               ),
