@@ -3,7 +3,7 @@
 ## 📦 Package Information
 
 - **Package Name:** `screen_launch_by_notfication`
-- **Version:** 2.1.0
+- **Version:** 2.2.0
 - **Pub.dev:** [https://pub.dev/packages/screen_launch_by_notfication](https://pub.dev/packages/screen_launch_by_notfication)
 - **GitHub:** [https://github.com/ravikinha/screen_launch_by_notfication](https://github.com/ravikinha/screen_launch_by_notfication)
 - **Documentation:** [https://swiftflutter.com/dynamicnotification](https://swiftflutter.com/dynamicnotification)
@@ -50,7 +50,15 @@ This plugin uses a native-first approach:
 - **🔄 All App States** - Detects notification taps when app is killed, in background, or foreground
 - **🔌 Plugin Integration** - Works seamlessly with `flutter_local_notifications`
 
-### Version 2.1.0 Features (Latest)
+### Version 2.2.0 Features (Latest)
+
+- **🎯 SwiftRouting Class** - New `SwiftRouting` class for type-safe routing with route and payload
+- **📦 Nullable Payload Support** - Payload in `SwiftRouting` is now optional - you can pass `null` if no data is needed
+- **🔧 Improved API** - `onNotificationLaunch` callback now returns `SwiftRouting?` instead of a map for better type safety
+- **✨ Better Developer Experience** - Cleaner API with `SwiftRouting(route: '/path', payload: {...})` syntax
+- **📝 Updated Examples** - Example app updated to demonstrate new `SwiftRouting` API
+
+### Version 2.1.0 Features
 
 - **🔄 Real-time Navigation** - Automatically navigates when notification is tapped while app is running
 - **🎯 Dynamic Routing** - `onNotificationLaunch` callback works for both initial launch and runtime taps
@@ -86,7 +94,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  screen_launch_by_notfication: ^2.1.0
+  screen_launch_by_notfication: ^2.2.0
   flutter_local_notifications: ^19.5.0  # Recommended for sending notifications
   get: ^4.6.6  # Required only if using GetMaterialApp
 ```
@@ -173,10 +181,19 @@ class MyApp extends StatelessWidget {
       onNotificationLaunch: ({required isFromNotification, required payload}) {
         // Works for both initial launch AND runtime notification taps
         if (payload.containsKey('chatnotification')) {
-          return '/chatPage';  // Route to chat screen
+          return SwiftRouting(
+            route: '/chatPage',
+            payload: {
+              'chatId': payload['chatId']?.toString(),
+              'senderName': payload['senderName']?.toString(),
+            },
+          );
         }
         if (isFromNotification) {
-          return '/notification';  // Route to notification screen
+          return SwiftRouting(
+            route: '/notification',
+            payload: payload.isNotEmpty ? payload : null,
+          );
         }
         return null;  // Use initialRoute from MaterialApp
       },
@@ -216,10 +233,19 @@ class MyApp extends StatelessWidget {
       onNotificationLaunch: ({required isFromNotification, required payload}) {
         // Dynamic routing based on payload
         if (payload.containsKey('chatnotification')) {
-          return '/chatPage';
+          return SwiftRouting(
+            route: '/chatPage',
+            payload: {
+              'chatId': payload['chatId']?.toString(),
+              'senderName': payload['senderName']?.toString(),
+            },
+          );
         }
         if (isFromNotification) {
-          return '/notification';
+          return SwiftRouting(
+            route: '/notification',
+            payload: payload.isNotEmpty ? payload : null,
+          );
         }
         return null;  // Use initialRoute from GetMaterialApp
       },
@@ -283,9 +309,9 @@ If you need to request notification permissions in your app (if you haven't alre
 import UserNotifications
 
 // In your AppDelegate or wherever you request permissions
-UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-  if granted {
-    DispatchQueue.main.async {
+    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+      if granted {
+        DispatchQueue.main.async {
       UIApplication.shared.registerForRemoteNotifications()
     }
   }
@@ -354,7 +380,7 @@ A widget that wraps `MaterialApp` or `GetMaterialApp` and automatically handles 
 SwiftFlutterMaterial(
   materialApp: MaterialApp(
     title: 'My App',
-    initialRoute: '/splash',
+  initialRoute: '/splash',
     routes: {
       '/splash': (_) => SplashScreen(),
       '/notification': (_) => NotificationScreen(),
@@ -363,7 +389,10 @@ SwiftFlutterMaterial(
   ),
   onNotificationLaunch: ({required isFromNotification, required payload}) {
     if (isFromNotification) {
-      return '/notification';
+      return SwiftRouting(
+        route: '/notification',
+        payload: payload.isNotEmpty ? payload : null,
+      );
     }
     return null; // Use initialRoute from MaterialApp
   },
@@ -382,7 +411,10 @@ SwiftFlutterMaterial(
   ),
   onNotificationLaunch: ({required isFromNotification, required payload}) {
     if (isFromNotification) {
-      return '/notification';
+      return SwiftRouting(
+        route: '/notification',
+        payload: payload.isNotEmpty ? payload : null,
+      );
     }
     return null; // Use initialRoute from GetMaterialApp
   },
@@ -479,8 +511,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return SwiftFlutterMaterial(
       materialApp: MaterialApp(
-        title: 'My App',
-        initialRoute: '/splash',
+      title: 'My App',
+      initialRoute: '/splash',
         routes: {
           '/splash': (_) => const SplashScreen(),
           '/notification': (_) {
@@ -615,10 +647,10 @@ await flutterLocalNotificationsPlugin.show(..., payload: payload);
 
 ```kotlin
 android {
-    compileOptions {
+compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
+}
 }
 ```
 
@@ -654,7 +686,15 @@ android {
 
 ## 📝 Version History
 
-### Version 2.1.0 (Current)
+### Version 2.2.0 (Current)
+
+- ✅ **SwiftRouting Class** - New `SwiftRouting` class for type-safe routing with route and payload
+- ✅ **Nullable Payload Support** - Payload in `SwiftRouting` is now optional - you can pass `null` if no data is needed
+- ✅ **Improved API** - `onNotificationLaunch` callback now returns `SwiftRouting?` instead of a map for better type safety
+- ✅ **Better Developer Experience** - Cleaner API with `SwiftRouting(route: '/path', payload: {...})` syntax
+- ✅ **Updated Examples** - Example app updated to demonstrate new `SwiftRouting` API
+
+### Version 2.1.0
 
 - ✅ **Real-time Navigation** - Automatically navigates when notification is tapped while app is running
 - ✅ **Dynamic Routing** - `onNotificationLaunch` callback works for both initial launch and runtime taps
