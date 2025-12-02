@@ -294,155 +294,6 @@ UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound
 
 **Note:** The plugin automatically handles all notification detection and payload storage. No need to modify `AppDelegate.swift`!
 
-### Legacy Setup (For Reference)
-
-> **Note:** The following setup instructions are for reference only. Version 2.0.0+ handles everything automatically. You only need these if you're using version 1.x.x.
-
-<details>
-<summary>Click to view legacy setup instructions</summary>
-
-#### Legacy Android Setup
-
-Update your `MainActivity.kt`:
-
-```swift
-import Flutter
-import UIKit
-import UserNotifications
-
-@main
-@objc class AppDelegate: FlutterAppDelegate {
-  override func application(
-    _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-  ) -> Bool {
-    GeneratedPluginRegistrant.register(with: self)
-    
-    // Request notification permissions
-    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-      if granted {
-        DispatchQueue.main.async {
-          application.registerForRemoteNotifications()
-        }
-      }
-    }
-    
-    // Set up notification delegate
-    UNUserNotificationCenter.current().delegate = self
-    
-    // Check if app was launched from notification (when terminated)
-    if let notification = launchOptions?[.remoteNotification] as? [String: Any] {
-      UserDefaults.standard.set(true, forKey: "openFromNotification")
-      if let jsonData = try? JSONSerialization.data(withJSONObject: notification),
-         let jsonString = String(data: jsonData, encoding: .utf8) {
-        UserDefaults.standard.set(jsonString, forKey: "notificationPayload")
-      }
-      UserDefaults.standard.synchronize()
-    }
-    
-    let result = super.application(application, didFinishLaunchingWithOptions: launchOptions)
-    
-    // Set up MethodChannel after Flutter engine is initialized
-    DispatchQueue.main.async {
-      if let controller = self.window?.rootViewController as? FlutterViewController {
-        let channel = FlutterMethodChannel(name: "launch_channel",
-                                           binaryMessenger: controller.binaryMessenger)
-        
-        channel.setMethodCallHandler { call, result in
-          if call.method == "isFromNotification" {
-            let flag = UserDefaults.standard.bool(forKey: "openFromNotification")
-            let payload = UserDefaults.standard.string(forKey: "notificationPayload") ?? "{}"
-            
-            let response: [String: Any] = [
-              "isFromNotification": flag,
-              "payload": payload
-            ]
-            
-            result(response)
-            
-            UserDefaults.standard.set(false, forKey: "openFromNotification")
-            UserDefaults.standard.removeObject(forKey: "notificationPayload")
-            UserDefaults.standard.synchronize()
-          } else if call.method == "storeNotificationPayload" {
-            if let payload = call.arguments as? String {
-              UserDefaults.standard.set(payload, forKey: "pendingNotificationPayload")
-              UserDefaults.standard.synchronize()
-              result(true)
-            } else {
-              result(FlutterMethodNotImplemented)
-            }
-          } else {
-            result(FlutterMethodNotImplemented)
-          }
-        }
-      }
-    }
-    
-    return result
-  }
-  
-  // Handle notification tap when app is in foreground or background
-  override func userNotificationCenter(
-    _ center: UNUserNotificationCenter,
-    didReceive response: UNNotificationResponse,
-    withCompletionHandler completionHandler: @escaping () -> Void
-  ) {
-    UserDefaults.standard.set(true, forKey: "openFromNotification")
-    
-    var payloadString: String?
-    
-    if let payload = response.notification.request.content.userInfo["payload"] as? String {
-      payloadString = payload
-    } else {
-      payloadString = UserDefaults.standard.string(forKey: "pendingNotificationPayload")
-      UserDefaults.standard.removeObject(forKey: "pendingNotificationPayload")
-    }
-    
-    if let payload = payloadString {
-      UserDefaults.standard.set(payload, forKey: "notificationPayload")
-    } else {
-      let userInfo = response.notification.request.content.userInfo
-      if let jsonData = try? JSONSerialization.data(withJSONObject: userInfo),
-         let jsonString = String(data: jsonData, encoding: .utf8) {
-        UserDefaults.standard.set(jsonString, forKey: "notificationPayload")
-      }
-    }
-    
-    UserDefaults.standard.synchronize()
-    
-    completionHandler()
-  }
-  
-  // Handle notification when app is in foreground
-  override func userNotificationCenter(
-    _ center: UNUserNotificationCenter,
-    willPresent notification: UNNotification,
-    withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
-  ) {
-    UserDefaults.standard.set(true, forKey: "openFromNotification")
-    
-    if let payload = notification.request.content.userInfo["payload"] as? String {
-      UserDefaults.standard.set(payload, forKey: "notificationPayload")
-    } else {
-      let userInfo = notification.request.content.userInfo
-      if let jsonData = try? JSONSerialization.data(withJSONObject: userInfo),
-         let jsonString = String(data: jsonData, encoding: .utf8) {
-        UserDefaults.standard.set(jsonString, forKey: "notificationPayload")
-      }
-    }
-    
-    UserDefaults.standard.synchronize()
-    
-    // Use .alert for iOS 13 compatibility, .banner for iOS 14+
-    if #available(iOS 14.0, *) {
-      completionHandler([.banner, .sound, .badge])
-    } else {
-      completionHandler([.alert, .sound, .badge])
-    }
-  }
-}
-```
-
 ---
 
 ## 📖 API Reference
@@ -483,43 +334,57 @@ await screenLaunchByNotfication.storeNotificationPayload(payload);
 
 ### SwiftFlutterMaterial Widget
 
-A widget that wraps MaterialApp and automatically handles notification-based routing.
+A widget that wraps `MaterialApp` or `GetMaterialApp` and automatically handles notification-based routing.
 
 #### Constructor Parameters
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `initialRoute` | `String` | Yes | The initial route when app is launched normally |
-| `homeRoute` | `String?` | No | Route to navigate to when back is pressed from notification (defaults to `initialRoute`) |
-| `routes` | `Map<String, WidgetBuilder>?` | Yes* | Routes configuration |
-| `routesWithPayload` | `Map<String, Widget Function(BuildContext, Map<String, dynamic>)>?` | Yes* | Routes with payload access |
-| `onNotificationLaunch` | `NotificationRouteCallback?` | No | Callback to determine route based on notification |
-| `onBackFromNotification` | `VoidCallback?` | No | Callback when back is pressed from notification screen |
-| `title` | `String?` | No | App title |
-| `theme` | `ThemeData?` | No | App theme |
-| `darkTheme` | `ThemeData?` | No | Dark theme |
-| `themeMode` | `ThemeMode?` | No | Theme mode |
-| `debugShowCheckedModeBanner` | `bool?` | No | Show debug banner |
-| `builder` | `Widget Function(BuildContext, Widget?)?` | No | Additional MaterialApp builder |
+| `materialApp` | `MaterialApp?` | No* | Your existing `MaterialApp` widget |
+| `getMaterialApp` | `GetMaterialApp?` | No* | Your existing `GetMaterialApp` widget |
+| `onNotificationLaunch` | `NotificationRouteCallback?` | No | Callback to determine route based on notification (works for both initial launch and runtime taps) |
+| `onNotificationTap` | `OnNotificationTapCallback?` | No | Custom callback for handling notification taps when app is already running |
 
-*Either `routes` or `routesWithPayload` must be provided.
+*Either `materialApp` or `getMaterialApp` must be provided (not both).
 
 #### Example Usage
 
 ```dart
+// With MaterialApp
 SwiftFlutterMaterial(
-  initialRoute: '/splash',
-  homeRoute: '/home',
-  routesWithPayload: {
-    '/splash': (context, payload) => SplashScreen(),
-    '/notification': (context, payload) => NotificationScreen(payload: payload),
-    '/home': (context, payload) => HomeScreen(),
-  },
+  materialApp: MaterialApp(
+    title: 'My App',
+    initialRoute: '/splash',
+    routes: {
+      '/splash': (_) => SplashScreen(),
+      '/notification': (_) => NotificationScreen(),
+      '/home': (_) => HomeScreen(),
+    },
+  ),
   onNotificationLaunch: ({required isFromNotification, required payload}) {
     if (isFromNotification) {
       return '/notification';
     }
-    return null;
+    return null; // Use initialRoute from MaterialApp
+  },
+)
+
+// With GetMaterialApp
+SwiftFlutterMaterial(
+  getMaterialApp: GetMaterialApp(
+    title: 'My App',
+    initialRoute: '/splash',
+    getPages: [
+      GetPage(name: '/splash', page: () => SplashScreen()),
+      GetPage(name: '/notification', page: () => NotificationScreen()),
+      GetPage(name: '/home', page: () => HomeScreen()),
+    ],
+  ),
+  onNotificationLaunch: ({required isFromNotification, required payload}) {
+    if (isFromNotification) {
+      return '/notification';
+    }
+    return null; // Use initialRoute from GetMaterialApp
   },
 )
 ```
@@ -613,14 +478,29 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SwiftFlutterMaterial(
-      title: 'My App',
-      initialRoute: '/splash',
-      homeRoute: '/home',
-      routesWithPayload: {
-        '/splash': (context, payload) => const SplashScreen(),
-        '/notification': (context, payload) => NotificationScreen(payload: payload),
-        '/home': (context, payload) => const HomeScreen(),
-      },
+      materialApp: MaterialApp(
+        title: 'My App',
+        initialRoute: '/splash',
+        routes: {
+          '/splash': (_) => const SplashScreen(),
+          '/notification': (_) {
+            final payload = ModalRoute.of(_)?.settings.arguments as Map<String, dynamic>?;
+            return NotificationScreen(payload: payload);
+          },
+          '/chat': (_) {
+            final payload = ModalRoute.of(_)?.settings.arguments as Map<String, dynamic>?;
+            return ChatScreen(payload: payload);
+          },
+          '/orders': (_) {
+            final payload = ModalRoute.of(_)?.settings.arguments as Map<String, dynamic>?;
+            return OrdersScreen(payload: payload);
+          },
+          '/home': (_) => const HomeScreen(),
+        },
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+      ),
       onNotificationLaunch: ({required isFromNotification, required payload}) {
         if (isFromNotification) {
           // Custom logic based on payload
@@ -631,11 +511,8 @@ class MyApp extends StatelessWidget {
           }
           return '/notification';
         }
-        return null; // Use initialRoute
+        return null; // Use initialRoute from MaterialApp
       },
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
     );
   }
 }
@@ -649,13 +526,13 @@ class MyApp extends StatelessWidget {
 
 1. **Minimum SDK:** Android 5.0 (API 21)
 2. **Target SDK:** Latest
-3. **Core Library Desugaring:** Required (see installation)
+3. **No Native Setup Required:** Plugin handles everything automatically
 
 ### iOS Configuration
 
 1. **Minimum iOS:** iOS 10.0
-2. **Permissions:** Notification permissions are requested automatically
-3. **Compatibility:** iOS 13+ uses `.banner`, iOS 13 uses `.alert`
+2. **No Native Setup Required:** Plugin handles everything automatically
+3. **Permissions:** Notification permissions should be requested in your app if not already done
 
 ---
 
@@ -705,12 +582,15 @@ Check: isFromNotification?
 
 ### Issue: App exits when pressing back from notification screen
 
-**Solution:** Use `SwiftFlutterMaterial` widget with `homeRoute` parameter, or handle back navigation manually:
+**Solution:** Handle back navigation in your route screens or use `WillPopScope`:
 
 ```dart
-SwiftFlutterMaterial(
-  homeRoute: '/home', // This prevents app exit
-  // ...
+WillPopScope(
+  onWillPop: () async {
+    Navigator.pushReplacementNamed(context, '/home');
+    return false;
+  },
+  child: YourNotificationScreen(),
 )
 ```
 
@@ -729,27 +609,27 @@ await flutterLocalNotificationsPlugin.show(..., payload: payload);
 - iOS 14+: Uses `.banner`
 - iOS 13: Uses `.alert`
 
-### Issue: Android build error about desugaring
+### Issue: Android build error
 
-**Solution:** Add to `android/app/build.gradle.kts`:
+**Solution:** Ensure your `android/app/build.gradle.kts` has the correct compile options:
 
 ```kotlin
-compileOptions {
-    isCoreLibraryDesugaringEnabled = true
-}
-dependencies {
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+android {
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
 }
 ```
 
 ### Issue: Notification not detected
 
 **Checklist:**
-1. ✅ Native code is properly set up (MainActivity.kt / AppDelegate.swift)
-2. ✅ MethodChannel name is `launch_channel`
-3. ✅ Notification includes payload
-4. ✅ `storeNotificationPayload` is called before sending notification
-5. ✅ App is completely closed (not just in background) when testing
+1. ✅ Plugin is properly added to `pubspec.yaml` (version 2.0.0+)
+2. ✅ Notification includes payload
+3. ✅ `storeNotificationPayload` is called before sending notification
+4. ✅ App is completely closed (not just in background) when testing
+5. ✅ `onNotificationLaunch` callback is properly defined in `SwiftFlutterMaterial`
 
 ---
 
