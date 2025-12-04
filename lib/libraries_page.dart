@@ -166,8 +166,8 @@ class LibrariesPage extends StatelessWidget {
                 Icons.flutter_dash,
                 Colors.blue,
                 () {
-                  // Navigate to home page
-                  Navigator.of(context).popUntil((route) => route.isFirst);
+                  // Navigate to /swiftflutter route
+                  Navigator.pushNamed(context, '/swiftflutter');
                 },
               ),
               const SizedBox(height: 16),
@@ -179,8 +179,34 @@ class LibrariesPage extends StatelessWidget {
                 Icons.notifications_active,
                 Colors.orange,
                 () {
-                  // Navigate to /dynamicnotification route
-                  Navigator.pushNamed(context, '/dynamicnotification');
+                  // Navigate to /notificationexample route
+                  Navigator.pushNamed(context, '/notificationexample');
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildLibraryCard(
+                context,
+                isDark,
+                'swift_animations',
+                'SwiftUI-like declarative animations with zero boilerplate',
+                Icons.auto_awesome,
+                Colors.purple,
+                () {
+                  // Navigate to /swiftanimations route
+                  Navigator.pushNamed(context, '/swiftanimations');
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildLibraryCard(
+                context,
+                isDark,
+                'swift_liquid',
+                'iOS-style liquid animations with spring physics and glass effects',
+                Icons.water_drop,
+                Colors.cyan,
+                () {
+                  // Navigate to /swiftliquid route
+                  Navigator.pushNamed(context, '/swiftliquid');
                 },
               ),
             ],

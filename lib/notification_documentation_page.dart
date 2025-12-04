@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:swift_flutter/swift_flutter.dart';
+import 'notification_example_page.dart';
 
 class NotificationDocumentationPage extends StatelessWidget {
   const NotificationDocumentationPage({super.key});
@@ -39,6 +40,18 @@ class NotificationDocumentationPage extends StatelessWidget {
           'screen_launch_by_notfication',
           style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.play_circle_outline, color: Colors.white),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NotificationExamplePage()),
+              );
+            },
+            tooltip: 'View Example',
+          ),
+        ],
       ),
       body: Swift(
         builder: (context) {

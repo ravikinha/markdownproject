@@ -6,10 +6,15 @@ import 'package:url_strategy/url_strategy.dart';
 import 'animation_interactive_guide.dart';
 import 'animated_floating_button.dart';
 import 'notification_documentation_page.dart';
+import 'notification_example_page.dart';
+import 'swift_animations_page.dart';
+import 'swift_liquid_page.dart';
+import 'products_page.dart';
+import 'swift_flutter_examples/swift_flutter_example_page.dart';
 
 void main() {
   // Use URL-based routing instead of hash-based routing
-  // This removes the # from URLs (e.g., /dynamicnotification instead of /#/dynamicnotification)
+  // This removes the # from URLs (e.g., /notificationexample instead of /#/notificationexample)
   setPathUrlStrategy();
   runApp(const LearningApp());
 }
@@ -48,9 +53,12 @@ class LearningApp extends StatelessWidget {
           ),
         ),
         themeMode: themeMode.value,
-        home: LearningHomePage(themeMode: themeMode),
+        home: ProductsPage(themeMode: themeMode),
         routes: {
-          '/dynamicnotification': (context) => const NotificationDocumentationPage(),
+          '/swiftflutter': (context) => const SwiftFlutterExamplePage(),
+          '/notificationexample': (context) => const NotificationExamplePage(),
+          '/swiftanimations': (context) => const SwiftAnimationsPage(),
+          '/swiftliquid': (context) => const SwiftLiquidPage(),
         },
       ),
     );

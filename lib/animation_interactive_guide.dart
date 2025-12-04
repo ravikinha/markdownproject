@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:swift_flutter/swift_flutter.dart';
+import 'package:swift_animations/swift_animations.dart';
 
 /// Interactive Animation Guide - No markdown, pure Dart with live examples
 /// Users can see, edit, and test animations in real-time
@@ -67,6 +67,10 @@ class _AnimationInteractiveGuideState extends State<AnimationInteractiveGuide> {
       'Pulse',
       'Combined',
       'Repeat',
+      'Spring iOS',
+      'Spring Gentle',
+      'Spring Bouncy',
+      'Gesture',
       'Interactive',
       'Custom Code',
     ];
@@ -133,8 +137,16 @@ class _AnimationInteractiveGuideState extends State<AnimationInteractiveGuide> {
       case 7:
         return _RepeatDemo(isDark: widget.isDark);
       case 8:
-        return _InteractiveDemo(isDark: widget.isDark);
+        return _SpringIOSDemo(isDark: widget.isDark);
       case 9:
+        return _SpringGentleDemo(isDark: widget.isDark);
+      case 10:
+        return _SpringBouncyDemo(isDark: widget.isDark);
+      case 11:
+        return _GestureDemo(isDark: widget.isDark);
+      case 12:
+        return _InteractiveDemo(isDark: widget.isDark);
+      case 13:
         return _CustomCodeDemo(isDark: widget.isDark);
       default:
         return _FadeInDemo(isDark: widget.isDark);
@@ -394,6 +406,144 @@ class _RepeatDemo extends StatelessWidget {
           .scale(1.3)
           .repeat(reverse: true)
           .duration(800.ms),
+    );
+  }
+}
+
+class _SpringIOSDemo extends StatelessWidget {
+  final bool isDark;
+  const _SpringIOSDemo({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return _DemoCard(
+      isDark: isDark,
+      title: 'Spring iOS Animation',
+      description: 'iOS-style snappy spring animation with less bounce',
+      code: '''Container(
+  width: 100,
+  height: 100,
+  color: Colors.blue,
+)
+  .animate()
+  .fadeIn()
+  .scale(1.3)
+  .springIOS()''',
+      child: Container(
+        width: 100,
+        height: 100,
+        color: Colors.blue,
+      )
+          .animate()
+          .fadeIn()
+          .scale(1.3)
+          .springIOS(),
+    );
+  }
+}
+
+class _SpringGentleDemo extends StatelessWidget {
+  final bool isDark;
+  const _SpringGentleDemo({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return _DemoCard(
+      isDark: isDark,
+      title: 'Spring Gentle Animation',
+      description: 'Gentle spring animation with smooth bounce',
+      code: '''Container(
+  width: 100,
+  height: 100,
+  color: Colors.green,
+)
+  .animate()
+  .fadeIn()
+  .scale(1.3)
+  .springGentle()''',
+      child: Container(
+        width: 100,
+        height: 100,
+        color: Colors.green,
+      )
+          .animate()
+          .fadeIn()
+          .scale(1.3)
+          .springGentle(),
+    );
+  }
+}
+
+class _SpringBouncyDemo extends StatelessWidget {
+  final bool isDark;
+  const _SpringBouncyDemo({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return _DemoCard(
+      isDark: isDark,
+      title: 'Spring Bouncy Animation',
+      description: 'Bouncy spring animation with high bounce effect',
+      code: '''Container(
+  width: 100,
+  height: 100,
+  color: Colors.orange,
+)
+  .animate()
+  .fadeIn()
+  .scale(1.3)
+  .springBouncy()''',
+      child: Container(
+        width: 100,
+        height: 100,
+        color: Colors.orange,
+      )
+          .animate()
+          .fadeIn()
+          .scale(1.3)
+          .springBouncy(),
+    );
+  }
+}
+
+class _GestureDemo extends StatelessWidget {
+  final bool isDark;
+  const _GestureDemo({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return _DemoCard(
+      isDark: isDark,
+      title: 'Gesture Detector',
+      description: 'Liquid tap effects with spring physics - Tap and drag to see the effect!',
+      code: '''Container(
+  width: 120,
+  height: 120,
+  decoration: BoxDecoration(
+    color: Colors.teal,
+    borderRadius: BorderRadius.circular(20),
+  ),
+)
+  .sGestureDetector(
+    onPressed: () => print('Tapped!'),
+    onLongPress: () => print('Long pressed!'),
+  )''',
+      child: Container(
+        width: 120,
+        height: 120,
+        decoration: BoxDecoration(
+          color: Colors.teal,
+          borderRadius: BorderRadius.circular(20),
+        ),
+      )
+          .sGestureDetector(
+            onPressed: () {
+              // Tap feedback
+            },
+            onLongPress: () {
+              // Long press feedback
+            },
+          ),
     );
   }
 }

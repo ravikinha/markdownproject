@@ -13,7 +13,13 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_markdown: ^0.6.18
   swift_flutter: ^2.3.1
+  swift_animations: ^1.2.0
+  swift_liquid:
+    path: ../../swift_liquid
   url_strategy: ^0.2.0
+  screen_launch_by_notfication:
+    path: ../../screen_launch_by_notfication
+  flutter_local_notifications: ^19.5.0
 
 dev_dependencies:
   flutter_test:
