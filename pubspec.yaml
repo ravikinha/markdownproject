@@ -13,13 +13,14 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_markdown: ^0.6.18
   swift_flutter: ^2.3.1
-  swift_animations: ^1.2.0
+  swift_animations: ^1.2.1
   swift_liquid:
     path: ../../swift_liquid
   url_strategy: ^0.2.0
   screen_launch_by_notfication:
     path: ../../screen_launch_by_notfication
   flutter_local_notifications: ^19.5.0
+  video_player: ^2.8.2
 
 dev_dependencies:
   flutter_test:
@@ -43,6 +44,7 @@ flutter:
   assets:
     - assets/markdown/
     - assets/images/
+    - assets/backgroundvideo.mp4
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

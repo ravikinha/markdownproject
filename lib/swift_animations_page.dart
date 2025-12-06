@@ -88,6 +88,7 @@ class _SwiftAnimationsPageState extends State<SwiftAnimationsPage> {
       'Spring Bouncy',
       'Spring Custom',
       'Gesture Detector',
+      'Navigation',
       'Code Editor',
     ];
 
@@ -173,6 +174,8 @@ class _SwiftAnimationsPageState extends State<SwiftAnimationsPage> {
       case 17:
         return _GestureDetectorDemo(isDark: isDark);
       case 18:
+        return _NavigationDemo(isDark: isDark);
+      case 19:
         return _CodeEditorDemo(isDark: isDark);
       default:
         return _FadeInDemo(isDark: isDark);
@@ -522,8 +525,8 @@ class _RepeatCountDemo extends StatelessWidget {
   Widget build(BuildContext context) {
     return _DemoCard(
       isDark: isDark,
-      title: 'Repeat Count',
-      description: 'Animation repeats a specific number of times',
+      title: 'Repeat Count (Fixed in v1.2.1)',
+      description: 'Animation repeats a specific number of times - Now properly respects the count instead of infinite loop',
       code: '''Container(
   width: 100,
   height: 100,
@@ -836,6 +839,85 @@ class _GestureDetectorDemo extends StatelessWidget {
             },
             scaleOnPress: 1.1,
           ),
+    );
+  }
+}
+
+class _NavigationDemo extends StatelessWidget {
+  final bool isDark;
+  const _NavigationDemo({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return _DemoCard(
+      isDark: isDark,
+      title: 'Navigation Animations (New in v1.2.1)',
+      description: 'Platform-specific navigation animations with fluent API - iOS, Android, and Web styles',
+      code: '''// iOS-style navigation (slide from right)
+swift.push(NextPage())
+  .ios()
+  .duration(500)
+  .curve(Curves.easeInOut)
+  .go(context);
+
+// Android-style navigation (fade + slide up)
+swift.push(NextPage())
+  .android()
+  .duration(500)
+  .go(context);
+
+// Web-style navigation (fade)
+swift.push(NextPage())
+  .web()
+  .duration(300)
+  .go(context);
+
+// Push replacement
+swift.pushReplacement(HomePage())
+  .ios()
+  .duration(300)
+  .go(context);
+
+// Push named route
+swift.pushNamed('/details')
+  .android()
+  .duration(400)
+  .go(context, arguments: {'id': 123});''',
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF2D2D30) : const Color(0xFFF3F3F3),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              children: [
+                const Icon(Icons.navigation, size: 40, color: Color(0xFF007ACC)),
+                const SizedBox(height: 8),
+                Text(
+                  'Navigation Features',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : const Color(0xFF1E1E1E),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '• iOS-style slide transitions\n• Android-style fade + slide\n• Web-style fade transitions\n• Push, replace, and remove routes',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? const Color(0xFFCCCCCC) : const Color(0xFF424242),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

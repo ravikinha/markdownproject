@@ -1,14 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:swift_flutter/swift_flutter.dart';
 import 'package:swift_liquid/swift_liquid.dart';
+import 'package:video_player/video_player.dart';
 
-class ProductsPage extends StatelessWidget {
+class ProductsPage extends StatefulWidget {
   final SwiftValue<ThemeMode> themeMode;
   
   ProductsPage({
     super.key,
     SwiftValue<ThemeMode>? themeMode,
   }) : themeMode = themeMode ?? swift(ThemeMode.light);
+
+  @override
+  State<ProductsPage> createState() => _ProductsPageState();
+}
+
+class _ProductsPageState extends State<ProductsPage> {
+  VideoPlayerController? _videoController;
+  bool _isVideoInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeVideo();
+  }
+
+  Future<void> _initializeVideo() async {
+    try {
+      _videoController = VideoPlayerController.asset('assets/backgroundvideo.mp4');
+      await _videoController!.initialize();
+      _videoController!.setLooping(true);
+      _videoController!.setVolume(0.0); // Mute the video
+      _videoController!.play();
+      if (mounted) {
+        setState(() {
+          _isVideoInitialized = true;
+        });
+      }
+    } catch (e) {
+      // If video fails to load, continue without it
+      if (mounted) {
+        setState(() {
+          _isVideoInitialized = false;
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _videoController?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +61,7 @@ class ProductsPage extends StatelessWidget {
       builder: (context) => Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
-          backgroundColor: isDark ? const Color(0xFF252526) : const Color(0xFF007ACC),
+          backgroundColor: isDark ? const Color(0xFF252526).withValues(alpha: 0.9) : const Color(0xFF007ACC).withValues(alpha: 0.9),
           elevation: 0,
           title: Row(
             children: [
@@ -44,16 +87,50 @@ class ProductsPage extends StatelessWidget {
           actions: [
             IconButton(
               icon: Icon(
-                themeMode.value == ThemeMode.light ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
+                widget.themeMode.value == ThemeMode.light ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
                 color: Colors.white,
                 size: 20,
               ),
-              onPressed: () => themeMode.value = themeMode.value == ThemeMode.light ? ThemeMode.dark : ThemeMode.light,
+              onPressed: () => widget.themeMode.value = widget.themeMode.value == ThemeMode.light ? ThemeMode.dark : ThemeMode.light,
               tooltip: 'Toggle theme',
             ),
           ],
         ),
-        body: SingleChildScrollView(
+        body: Stack(
+          children: [
+            // Background Video
+            if (_isVideoInitialized && _videoController != null)
+              Positioned.fill(
+                child: FittedBox(
+                  fit: BoxFit.cover,
+                  child: SizedBox(
+                    width: _videoController!.value.size.width,
+                    height: _videoController!.value.size.height,
+                    child: VideoPlayer(_videoController!),
+                  ),
+                ),
+              )
+            else
+              Container(
+                color: Theme.of(context).scaffoldBackgroundColor,
+              ),
+            // Dark overlay for better text readability
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withValues(alpha: 0.4),
+                      Colors.black.withValues(alpha: 0.6),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            // Content on top
+            SingleChildScrollView(
           padding: const EdgeInsets.all(32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,8 +141,15 @@ class ProductsPage extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 48,
                   fontWeight: FontWeight.w700,
-                  color: isDark ? Colors.white : const Color(0xFF1E1E1E),
+                  color: Colors.white,
                   letterSpacing: -1,
+                  shadows: [
+                    Shadow(
+                      offset: const Offset(0, 2),
+                      blurRadius: 8,
+                      color: Colors.black.withValues(alpha: 0.5),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 12),
@@ -73,7 +157,14 @@ class ProductsPage extends StatelessWidget {
                 'Explore our collection of Flutter libraries and tools',
                 style: TextStyle(
                   fontSize: 18,
-                  color: isDark ? const Color(0xFFCCCCCC) : const Color(0xFF616161),
+                  color: Colors.white.withValues(alpha: 0.9),
+                  shadows: [
+                    Shadow(
+                      offset: const Offset(0, 2),
+                      blurRadius: 6,
+                      color: Colors.black.withValues(alpha: 0.5),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 48),
@@ -136,6 +227,8 @@ class ProductsPage extends StatelessWidget {
               ),
             ],
           ),
+            ),
+          ],
         ),
       ),
     );
@@ -155,17 +248,28 @@ class ProductsPage extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       borderRadius: 24,
       enableBlur: true,
-      color: isDark ? const Color(0xFF252526).withValues(alpha: 0.8) : Colors.white.withValues(alpha: 0.9),
+      blurSigma: 10.0,
+      color: isDark 
+          ? Colors.black.withValues(alpha: 0.3) 
+          : Colors.white.withValues(alpha: 0.25),
       border: Border.all(
-        color: isDark ? const Color(0xFF3C3C3C) : const Color(0xFFE0E0E0),
-        width: 1.5,
+        color: isDark 
+            ? Colors.white.withValues(alpha: 0.2) 
+            : Colors.white.withValues(alpha: 0.3),
+        width: 1.0,
       ),
       boxShadow: [
         BoxShadow(
-          color: color.withValues(alpha: isDark ? 0.2 : 0.1),
+          color: color.withValues(alpha: 0.15),
           blurRadius: 20,
           spreadRadius: 0,
           offset: const Offset(0, 8),
+        ),
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.1),
+          blurRadius: 10,
+          spreadRadius: 0,
+          offset: const Offset(0, 4),
         ),
       ],
       child: Column(
@@ -177,11 +281,24 @@ class ProductsPage extends StatelessWidget {
               SContainer(
                 padding: const EdgeInsets.all(12),
                 borderRadius: 16,
-                color: color.withValues(alpha: 0.15),
+                enableBlur: true,
+                blurSigma: 8.0,
+                color: color.withValues(alpha: 0.2),
+                border: Border.all(
+                  color: color.withValues(alpha: 0.3),
+                  width: 1.0,
+                ),
                 child: Icon(
                   icon,
                   color: color,
                   size: 32,
+                  shadows: [
+                    Shadow(
+                      offset: const Offset(0, 2),
+                      blurRadius: 4,
+                      color: Colors.black.withValues(alpha: 0.3),
+                    ),
+                  ],
                 ),
               ).sGestureDetector(
                 onPressed: () {},
@@ -197,8 +314,15 @@ class ProductsPage extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : const Color(0xFF1E1E1E),
+                        color: Colors.white,
                         letterSpacing: -0.5,
+                        shadows: [
+                          Shadow(
+                            offset: const Offset(0, 2),
+                            blurRadius: 4,
+                            color: Colors.black.withValues(alpha: 0.5),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -207,7 +331,14 @@ class ProductsPage extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: color,
+                        color: color.withValues(alpha: 0.9),
+                        shadows: [
+                          Shadow(
+                            offset: const Offset(0, 1),
+                            blurRadius: 3,
+                            color: Colors.black.withValues(alpha: 0.4),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -224,7 +355,14 @@ class ProductsPage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 height: 1.6,
-                color: isDark ? const Color(0xFFCCCCCC) : const Color(0xFF616161),
+                color: Colors.white.withValues(alpha: 0.9),
+                shadows: [
+                  Shadow(
+                    offset: const Offset(0, 1),
+                    blurRadius: 3,
+                    color: Colors.black.withValues(alpha: 0.4),
+                  ),
+                ],
               ),
             ),
           ),
@@ -234,10 +372,12 @@ class ProductsPage extends StatelessWidget {
           SContainer(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             borderRadius: 12,
-            color: color.withValues(alpha: 0.1),
+            enableBlur: true,
+            blurSigma: 8.0,
+            color: color.withValues(alpha: 0.2),
             border: Border.all(
-              color: color.withValues(alpha: 0.3),
-              width: 1.5,
+              color: color.withValues(alpha: 0.4),
+              width: 1.0,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
